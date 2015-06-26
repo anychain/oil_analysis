@@ -3,11 +3,10 @@ package main
 import (
     "bufio"
     "encoding/csv"
-    "encoding/json"
     "fmt"
     "io"
-    "io/ioutil"
     "os"
+    "path/filepath"
     "strconv"
     "strings"
 )
@@ -85,17 +84,17 @@ type DisposGas struct {
     OilDisNc      int
 }
 
-func handleDisposition(disposition_file string) error {
+func handleDisposition(output, disposition_file string) error {
 
     fmt.Printf("Begin to deal with disposition file %s \n", disposition_file)
     file, err := os.Open(disposition_file)
+    var dispos = new(Disposition)
     if err != nil {
         fmt.Printf("failed to open file %s", disposition_file)
         return nil
     }
     defer file.Close()
     header_reader := bufio.NewReader(file)
-    var dispos = new(Disposition)
     for {
         line, err := header_reader.ReadString('\n')
 
@@ -123,7 +122,8 @@ func handleDisposition(disposition_file string) error {
     } else if dispos.WellType == "Oil" {
         dispos.DisposDetailGas = make([]DisposGas, 1)
     } else {
-        panic("wrong well type" + dispos.WellType)
+        fmt.Println("wrong well type: ", dispos.WellType)
+        return nil
     }
 
     reader := csv.NewReader(file)
@@ -206,31 +206,13 @@ func handleDisposition(disposition_file string) error {
     }
 
     if len(dispos.DisposDetailOil) > 0 {
-        oil, err := json.Marshal(dispos.DisposDetailOil)
-        if err != nil {
-            fmt.Println("marshall json error:", err)
-            panic("failed to marshall file " + disposition_file)
-        }
-
-        err = ioutil.WriteFile(strings.Replace(disposition_file, "csv", "oil.json", 1), oil, 0644)
-        if err != nil {
-            fmt.Println("dump json file error:", err)
-            panic("failed to write json file " + disposition_file)
-        }
+        filename := output + string(filepath.Separator) + strings.Replace(filepath.Base(file.Name()), "csv", "oil.json", 1)
+        save_json(filename, dispos.DisposDetailOil)
     }
 
     if len(dispos.DisposDetailGas) > 0 {
-        gas, err := json.Marshal(dispos.DisposDetailGas)
-        if err != nil {
-            fmt.Println("marshall json error:", err)
-            panic("failed to marshall file " + disposition_file)
-        }
-
-        err = ioutil.WriteFile(strings.Replace(disposition_file, "csv", "gas.json", 1), gas, 0644)
-        if err != nil {
-            fmt.Println("dump json file error:", err)
-            panic("failed to write json file " + disposition_file)
-        }
+        filename := output + string(filepath.Separator) + strings.Replace(filepath.Base(file.Name()), "csv", "gas.json", 1)
+        save_json(filename, dispos.DisposDetailGas)
     }
     return nil
 }

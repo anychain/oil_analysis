@@ -3,11 +3,10 @@ package main
 import (
     "bufio"
     "encoding/csv"
-    "encoding/json"
     "fmt"
     "io"
-    "io/ioutil"
     "os"
+    "path/filepath"
     "strconv"
     "strings"
 )
@@ -39,17 +38,17 @@ type Lease struct {
     LeaseDetail []LeaseDetail
 }
 
-func handleLease(lease_file string) error {
+func handleLease(output, lease_file string) error {
 
     fmt.Printf("Begin to deal with lease file %s \n", lease_file)
     file, err := os.Open(lease_file)
+    var lease = new(Lease)
     if err != nil {
         fmt.Printf("failed to open file %s", lease_file)
         return nil
     }
     defer file.Close()
     header_reader := bufio.NewReader(file)
-    var lease = new(Lease)
     for {
         line, err := header_reader.ReadString('\n')
 
@@ -116,16 +115,7 @@ func handleLease(lease_file string) error {
 
     }
 
-    b, err := json.Marshal(lease.LeaseDetail)
-    if err != nil {
-        fmt.Println("marshall json error:", err)
-        panic("failed to marshall file " + lease_file)
-    }
-
-    err = ioutil.WriteFile(strings.Replace(lease_file, "csv", "json", 1), b, 0644)
-    if err != nil {
-        fmt.Println("dump json file error:", err)
-        panic("failed to write json file " + lease_file)
-    }
+    filename := output + string(filepath.Separator) + strings.Replace(filepath.Base(file.Name()), "csv", "json", 1)
+    save_json(filename, lease.LeaseDetail)
     return nil
 }

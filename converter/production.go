@@ -3,11 +3,10 @@ package main
 import (
     "bufio"
     "encoding/csv"
-    "encoding/json"
     "fmt"
     "io"
-    "io/ioutil"
     "os"
+    "path/filepath"
     "strconv"
     "strings"
 )
@@ -37,17 +36,17 @@ type Production struct {
     ProductionDetail []ProductionDetail
 }
 
-func handleProduction(production_file string) error {
+func handleProduction(output, production_file string) error {
 
     fmt.Printf("Begin to deal with production file %s \n", production_file)
     file, err := os.Open(production_file)
+    var production = new(Production)
     if err != nil {
         fmt.Printf("failed to open file %s", production_file)
         return nil
     }
     defer file.Close()
     header_reader := bufio.NewReader(file)
-    var production = new(Production)
     for {
         line, err := header_reader.ReadString('\n')
 
@@ -104,16 +103,7 @@ func handleProduction(production_file string) error {
         }
     }
 
-    b, err := json.Marshal(production.ProductionDetail)
-    if err != nil {
-        fmt.Println("marshall json error:", err)
-        panic("failed to marshall file " + production_file)
-    }
-
-    err = ioutil.WriteFile(strings.Replace(production_file, "csv", "json", 1), b, 0644)
-    if err != nil {
-        fmt.Println("dump json file error:", err)
-        panic("failed to write json file " + production_file)
-    }
+    filename := output + string(filepath.Separator) + strings.Replace(filepath.Base(file.Name()), "csv", "json", 1)
+    save_json(filename, production.ProductionDetail)
     return nil
 }
