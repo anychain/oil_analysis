@@ -88,7 +88,7 @@ func handleProduction(output, production_file string) error {
             } else {
                 tmp := new(ProductionDetail)
                 tmp.Date = strings.TrimSpace(strings.Split(production.DateRange, "-")[0])
-                tmp.InitView = production.InitView
+                tmp.InitView = strings.TrimSpace(production.InitView)
                 tmp.WellType = production.WellType
                 tmp.LeaseName = record[0]
                 tmp.LeaseNo = record[1]
