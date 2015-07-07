@@ -42,7 +42,7 @@ rsync -Pae "ssh $SSH_ARGS" $DMP_FILE $REMOTE_MACHINE:~/
 # create the tablespace, user, grants, and directory object
 ssh $SSH_ARGS $REMOTE_MACHINE "sqlplus / as sysdba @create-db.sql"
 # import the Oracle .dmp file
-#ssh $SSH_ARGS $REMOTE_MACHINE "imp oil/passw0rd file=${DMP_FILE##*/} FROMUSER=PDQ_OWNR tables=og_well_completion INDEXES=NO"
+ssh $SSH_ARGS $REMOTE_MACHINE "imp oil/passw0rd file=${DMP_FILE##*/} FROMUSER=PDQ_OWNR tables=og_well_completion INDEXES=NO"
  
 # Create the PL/SQL procedure to export tables to CSV
 ssh $SSH_ARGS $REMOTE_MACHINE "sqlplus oil/passw0rd @dump2csv.sql"
