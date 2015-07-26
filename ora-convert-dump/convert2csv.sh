@@ -20,10 +20,10 @@
 set -e
 set -x
  
-SSH_PORT=2222
+SSH_PORT=2200
 ORACLE_HOST=127.0.0.1
  
-REMOTE_MACHINE="oracle"
+REMOTE_MACHINE="oracle11"
  
 SSH_ARGS=""
  
@@ -37,12 +37,12 @@ fi
 # Copy utility scripts
 rsync -Pae "ssh $SSH_ARGS" create-db.sql export.sql dump2csv.sql $REMOTE_MACHINE:~/
 # Copy database dump
-rsync -Pae "ssh $SSH_ARGS" $DMP_FILE $REMOTE_MACHINE:~/
+rsync -Pae "ssh $SSH_ARGS" $DMP_FILE $REMOTE_MACHINE:/vagrant/
  
 # create the tablespace, user, grants, and directory object
 ssh $SSH_ARGS $REMOTE_MACHINE "sqlplus / as sysdba @create-db.sql"
 # import the Oracle .dmp file
-#ssh $SSH_ARGS $REMOTE_MACHINE "imp oil/passw0rd file=${DMP_FILE##*/} FROMUSER=PDQ_OWNR tables=og_well_completion INDEXES=NO"
+ssh $SSH_ARGS $REMOTE_MACHINE "imp oil/passw0rd file=/vagrant/${DMP_FILE##*/} FROMUSER=PDQ_OWNR full=Y INDEXES=NO"
  
 # Create the PL/SQL procedure to export tables to CSV
 ssh $SSH_ARGS $REMOTE_MACHINE "sqlplus oil/passw0rd @dump2csv.sql"
