@@ -26,7 +26,7 @@ object North_Dakota_Montana {
     // production table
     // North Dakota
     val simpleDateFormat:SimpleDateFormat = new SimpleDateFormat("MM-yyyy");
-    val schemaString = ("API_No Pool Date OilBBL WaterBBL GasMCF DaysProduced")
+    val schemaString = ("API_NO POOL DATE OILBBL WATERBBL GASMCF DAYSPRODUCED")
     val schema = StructType(
           schemaString.split(" ").map(fieldName => StructField(fieldName, StringType, true)))
 
@@ -55,10 +55,10 @@ object North_Dakota_Montana {
     // North Dakota
     val opts = Map("header" -> "true", "delimiter" -> "\t")
     val simpleDateFormat:SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    val schemaString = ("API_No CurrentOperator CurrentWellName LeaseName LeaseNumber "
-      + "ApprovedDate SpudDate CompletionDate TD CountyName FieldName ProducedPools "
-      + "OilWaterGasCums IPTDateOilWaterGas Slant Latitude Longitude WellType WellStatus "
-      + "WellStatusDate")
+    val schemaString = ("API_NO CURRENTOPERATOR CURRENTWELLNAME LEASENAME LEASENUMBER "
+      + "APPROVEDATE SPUDDATE COMPLETIONDATE TD COUNTYNAME FIELDNAME PRODUCEDPOOLS "
+      + "OILWATERGASCUMS IPTDATEOILWATERGAS SLANT LATITUDE LONGITUDE WELLTYPE WELLSTATUS "
+      + "WELLSTATUSDATE")
     val schema = StructType(
           schemaString.split(" ").map(fieldName => StructField(fieldName, StringType, true)))
     val well_index = sqlContext.read.format("com.databricks.spark.csv").options(opts).load(hdfs
@@ -143,13 +143,13 @@ object North_Dakota_Montana {
       p(2)))
     sqlContext.createDataFrame(row_rdd, temp.schema).registerTempTable("search_well")
 
-    val result = sqlContext.sql("select wt.API_No as API_No, wt.CoName as CurrentOperator, "
-      + "wt.Well_Nm as CurrentWellName, '' as LeaseName, p.Lease_Unit as LeaseNumber, "
-      + "wt.Dt_APD as ApprovedDate, s.SpudDate as SpudDate, wt.Dt_Cmp as CompletionDate, wt.DTD as TD, "
-      + "s.CountyName as CountyName, wt.Stat_Field as FieldName, '' as ProducedPools, "
-      + "'' as OilWaterGasCums, '' as IPTDateOilWaterGas, wt.Slant as Slant, "
-      + "f.Wh_Long as Latitude, f.Wh_Lat as Longitude, wt.Well_Typ as WellType, wt.Wl_Status as WellStatus, "
-      + "'' as WellStatusDate "
+    val result = sqlContext.sql("select wt.API_No as API_NO, wt.CoName as CURRENTOPERATOR, "
+      + "wt.Well_Nm as CURRENTWELLNAME, '' as LEASENAME, p.Lease_Unit as LEASENUMBER, "
+      + "wt.Dt_APD as APPROVEDDATE, s.SpudDate as SPUDDATE, wt.Dt_Cmp as COMPLETIONDATE, wt.DTD as TD, "
+      + "s.CountyName as COUNTYNAME, wt.Stat_Field as FIELDNAME, '' as PRODUCEDPOOLS, "
+      + "'' as OILWATERGASCUMS, '' as IPTDATEOILWATERGAS, wt.Slant as SLANT, "
+      + "f.Wh_Lat as LATITUDE, f.Wh_Long as LONGITUDE, wt.Well_Typ as WELLTYPE, wt.Wl_Status as WELLSTATUS, "
+      + "'' as WELLSTATUSDATE "
       + "from well_data_temp wt, prod_well_tmp pt, prod_well p, well_surface f, search_well s "
       + "where wt.API_No == pt.API_No and p.API_No = pt.API_No and pt.API_No = f.API "
       + "and s.API_No = pt.API_No and pt.Month = p.Month")
