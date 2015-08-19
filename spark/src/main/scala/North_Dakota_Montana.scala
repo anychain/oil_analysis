@@ -34,7 +34,8 @@ object North_Dakota_Montana {
       + "/oil/North_Dakota/production/State*.txt")
     val row_rdd = state_prod.map(p => Row(p(1), p(2),
       new SimpleDateFormat("yyyy/M/1").format(simpleDateFormat.parse(p(3).toString())),
-      p(4), p(5), p(6), p(7)))
+      p(4).toString.toUpperCase(), p(5).toString.toUpperCase(), p(6).toString.toUpperCase(),
+      p(7).toString.toUpperCase()))
     val df = sqlContext.createDataFrame(row_rdd, schema)
     df.registerTempTable("state_prod")
 
@@ -42,9 +43,10 @@ object North_Dakota_Montana {
     val simpleDateFormat:SimpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
     val prod_well = sqlContext.read.format("com.databricks.spark.csv").options(opts).load(hdfs
       + "/oil/Montana/histprodwell.tab")
-    val row_rdd = prod_well.map(p => Row(p(1), "",
+    val row_rdd = prod_well.map(p => Row(p(1).toString.toUpperCase(), "",
       new SimpleDateFormat("yyyy/M/1").format(simpleDateFormat.parse(p(0).toString())),
-      p(7), p(9), p(8), p(10)))
+      p(7).toString.toUpperCase(), p(9).toString.toUpperCase(), p(8).toString.toUpperCase(),
+      p(10).toString.toUpperCase()))
     val df = sqlContext.createDataFrame(row_rdd, schema)
     df.registerTempTable("prod_well")
 
@@ -66,15 +68,20 @@ object North_Dakota_Montana {
     val temp = well_index.na.replace(Array("SpudDate", "WellStatusDate"),
       Map("Confidential" -> "1/1/1800",
       "" -> "1/1/1800")).na.fill(Map("SpudDate" -> "1/1/1800"))
-    val row_rdd = temp.map(p => Row(p(0), p(2), p(3), p(4), p(5), "",
+    val row_rdd = temp.map(p => Row(p(0).toString.toUpperCase(), p(2).toString.toUpperCase(),
+      p(3).toString.toUpperCase(), p(4).toString.toUpperCase(), p(5).toString.toUpperCase(), "",
       new SimpleDateFormat("M/d/yyyy").format(simpleDateFormat.parse(p(8).toString())),
-      "", p(9), p(10), p(16), p(17), p(18), p(19), p(20), p(21), p(22), p(23), p(24),
+      "", p(9).toString.toUpperCase(), p(10).toString.toUpperCase(), p(16).toString.toUpperCase(),
+      p(17).toString.toUpperCase(), p(18).toString.toUpperCase(), p(19).toString.toUpperCase(),
+      p(20).toString.toUpperCase(), p(21).toString.toUpperCase(), p(22).toString.toUpperCase(),
+      p(23).toString.toUpperCase(), p(24).toString.toUpperCase(),
      new SimpleDateFormat("M/d/yyyy").format(simpleDateFormat.parse(p(26).toString()))))
     val df = sqlContext.createDataFrame(row_rdd, schema)
-    df.na.replace("Slant", Map("VERTICAL" -> "Vertical",
-      "HORIZONTAL RE-ENTRY" -> "Horizontal Re-drill/Re-entry",
-      "DIRECTIONAL" -> "Directional",
-      "HORIZONTAL" -> "Horizontal")).registerTempTable("well_index")
+    // df.na.replace("Slant", Map("VERTICAL" -> "Vertical",
+    //   "HORIZONTAL RE-ENTRY" -> "Horizontal Re-drill/Re-entry",
+    //   "DIRECTIONAL" -> "Directional",
+    //   "HORIZONTAL" -> "Horizontal"))
+    df.registerTempTable("well_index")
 
     // Montana
     val opts = Map("header" -> "true", "delimiter" -> "\t")
@@ -86,7 +93,9 @@ object North_Dakota_Montana {
 
     val simpleDateFormat:SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     val temp = result.na.replace(Array("Dt_APD", "Dt_Cmp"), Map("" -> "1800-1-1"))
-    val row_rdd = temp.map(p => Row(p(0), p(2), p(3), p(22), p(18), p(26), p(4), p(6)
+    val row_rdd = temp.map(p => Row(p(0).toString.toUpperCase(), p(2).toString.toUpperCase(),
+      p(3).toString.toUpperCase(), p(22).toString.toUpperCase(), p(18).toString.toUpperCase(),
+      p(26).toString.toUpperCase(), p(4).toString.toUpperCase(), p(6).toString.toUpperCase()
       , new SimpleDateFormat("M/d/yyyy").format(simpleDateFormat.parse(p(23).toString()))
       , new SimpleDateFormat("M/d/yyyy").format(simpleDateFormat.parse(p(24).toString()))
       ))
@@ -119,7 +128,8 @@ object North_Dakota_Montana {
     val opts = Map("header" -> "true", "delimiter" -> "\t")
     val well_surface = sqlContext.read.format("com.databricks.spark.csv").options(opts).load(hdfs
       + "/oil/Montana/Well_Surface_Longitude_latitude.tab")
-    val row_rdd = well_surface.map(p => Row(p(0).toString().replace("-", ""), p(1), p(2)))
+    val row_rdd = well_surface.map(p => Row(p(0).toString().replace("-", ""), p(1).toString.toUpperCase(),
+      p(2).toString.toUpperCase()))
     val schemaString = ("API Wh_Long Wh_Lat")
     val schema = StructType(
           schemaString.split(" ").map(fieldName => StructField(fieldName, StringType, true)))
@@ -140,7 +150,7 @@ object North_Dakota_Montana {
     val temp = df.na.replace("SpudDate", Map("" -> "1/1/1800")).na.fill(Map("SpudDate" -> "1/1/1800"))
     val row_rdd = temp.map(p => Row(p(0),
       new SimpleDateFormat("M/d/yyyy").format(simpleDateFormat.parse(p(1).toString())),
-      p(2)))
+      p(2).toString.toUpperCase()))
     sqlContext.createDataFrame(row_rdd, temp.schema).registerTempTable("search_well")
 
     val result = sqlContext.sql("select wt.API_No as API_NO, wt.CoName as CURRENTOPERATOR, "
