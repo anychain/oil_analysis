@@ -51,7 +51,8 @@ object North_Dakota_Montana {
     df.registerTempTable("prod_well")
 
     val result = sqlContext.sql("select * from state_prod UNION ALL select * from prod_well")
-    result.na.drop().write.mode(SaveMode.Overwrite).saveAsTable("North_Dakota_Montana_production")
+    result.na.drop().write.format("com.databricks.spark.csv").save(hdfs + "/oil/North_Dakota_Montana_production.csv")
+    result.na.drop().write.mode(SaveMode.Overwrite).format("parquet").saveAsTable("North_Dakota_Montana_production")
 
     // wellindex table
     // North Dakota
@@ -167,6 +168,7 @@ object North_Dakota_Montana {
 
     val tables = sqlContext.sql("select * from well_index UNION ALL select * from hist_well")
     val newTables = tables.na.replace("SpudDate", Map("1/1/1800" -> ""))
-    newTables.na.drop().write.mode(SaveMode.Overwrite).saveAsTable("North_Dakota_Montana_index")
+    newTables.na.drop().write.format("com.databricks.spark.csv").save(hdfs + "/oil/North_Dakota_Montana_index.csv")
+    newTables.na.drop().write.mode(SaveMode.Overwrite).format("parquet").saveAsTable("North_Dakota_Montana_index")
   }
 }

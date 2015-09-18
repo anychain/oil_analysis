@@ -17,7 +17,9 @@ object Texas_PDQ {
 
     val lease_cycle = sqlContext.read.format("com.databricks.spark.csv").options(opts).load(hdfs + "/oil/Texas/PDQ_OWNR.og_lease_cycle.csv")
     lease_cycle.registerTempTable("lease_cycle")
+    lease_cycle.na.drop().write.format("com.databricks.spark.csv").save(hdfs + "/oil/Texas_index.csv")
 
+    
     val well_completion = sqlContext.read.format("com.databricks.spark.csv").options(opts).load(hdfs + "/oil/Texas/PDQ_OWNR.og_well_completion.csv")
     well_completion.registerTempTable("well_completion")
 
